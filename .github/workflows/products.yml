@@ -1,0 +1,32 @@
+name: products
+
+# Quick feedback on pull requests. Builds, scans and images for deployment are
+# produced by Caelo in our AWS account.
+on:
+  push:
+    branches: [main]
+    paths: ["services/products/**", ".github/workflows/products.yml"]
+  pull_request:
+    paths: ["services/products/**", ".github/workflows/products.yml"]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: services/products
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: services/products/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+      - name: Container image builds
+        run: docker build -t noon-products:ci .

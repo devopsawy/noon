@@ -1,0 +1,28 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: noon
+  title: noon online shop
+  description: Online shop built as independent microservices.
+  annotations:
+    github.com/project-slug: devopsawy/noon
+spec:
+  owner: group:default/noon-team
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: noon-team
+  title: noon team
+spec:
+  type: team
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: noon-services
+  description: The services of the noon shop.
+spec:
+  targets:
+    - ./services/products/catalog-info.yaml

@@ -1,0 +1,91 @@
+openapi: 3.0.3
+info:
+  title: noon products API
+  version: 0.1.0
+  description: Product catalogue of the noon shop.
+servers:
+  - url: http://localhost:8080
+paths:
+  /healthz:
+    get:
+      summary: Liveness probe
+      responses:
+        "200": { description: The service is running }
+  /readyz:
+    get:
+      summary: Readiness probe
+      responses:
+        "200": { description: The service accepts traffic }
+  /categories:
+    get:
+      summary: Product categories
+      responses:
+        "200":
+          description: Category names
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { type: string } }
+  /products:
+    get:
+      summary: List products
+      parameters:
+        - { name: category, in: query, schema: { type: string }, description: Only this category }
+        - { name: q, in: query, schema: { type: string, maxLength: 100 }, description: Text search in name and description }
+      responses:
+        "200":
+          description: Matching products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Product" } }
+                  total: { type: integer }
+    post:
+      summary: Add a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewProduct" }
+      responses:
+        "201":
+          description: The created product
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Product" }
+        "400": { description: Invalid product (details list the reasons) }
+  /products/{id}:
+    get:
+      summary: Get one product
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The product
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Product" }
+        "404": { description: No product with this id }
+components:
+  schemas:
+    NewProduct:
+      type: object
+      required: [name, price, category]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 120 }
+        description: { type: string, maxLength: 2000 }
+        price: { type: number, exclusiveMinimum: true, minimum: 0 }
+        currency: { type: string, pattern: "^[A-Z]{3}$", default: SAR }
+        category: { type: string, enum: [electronics, home, sports, fashion, beauty, grocery] }
+        stock: { type: integer, minimum: 0, default: 0 }
+    Product:
+      allOf:
+        - $ref: "#/components/schemas/NewProduct"
+        - type: object
+          properties:
+            id: { type: string, format: uuid }
+            createdAt: { type: string, format: date-time }

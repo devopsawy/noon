@@ -1,0 +1,33 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: products
+  title: Products
+  description: Product catalogue of the noon shop (list, search, view, add).
+  tags: [nodejs, express, api]
+  annotations:
+    github.com/project-slug: devopsawy/noon
+    backstage.io/source-location: url:https://github.com/devopsawy/noon/tree/main/services/products
+    caelo.io/port: "8080"
+    caelo.io/health-path: /healthz
+    caelo.io/ready-path: /readyz
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:default/noon-team
+  system: noon
+  providesApis:
+    - products-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: products-api
+  description: HTTP API of the products service.
+spec:
+  type: openapi
+  lifecycle: experimental
+  owner: group:default/noon-team
+  system: noon
+  definition:
+    $text: ./openapi.yaml
